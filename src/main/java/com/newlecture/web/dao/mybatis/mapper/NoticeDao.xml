@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.newlecture.web.dao.NoticeDao">
+	<!-- 방법2 -->
+	<resultMap id="noticeMap"
+		type="com.newlecture.web.entity.Notice">
+		<result column="id" property="id" jdbcType="NUMERIC"
+			javaType="Integer" />
+		<result column="title" property="title" jdbcType="NVARCHAR"
+			javaType="String" />
+		<result column="content" property="content" jdbcType="CLOB"
+			javaType="String" />
+		<result column="writer_id" property="writerId"
+			jdbcType="VARCHAR" javaType="String" />
+		<result column="regDate" property="regDate"
+			jdbcType="TIMESTAMP" javaType="Date" />
+		<result column="hit" property="hit" jdbcType="NUMERIC"
+			javaType="Integer" />
+	</resultMap>
+	<select id="get" resultMap="noticeMap">
+		<!-- SELECT * FROM NOTICE WHERE ID = #{param1} -->
+		 SELECT * FROM NOTICE WHERE ID = #{id} 
+		<!-- SELECT ID, TITLE, CONTENT, WRITER_ID AS writerId, REGDATE, HIT
+		FROM
+		NOTICE WHERE ID =#{id} -->
+
+	</select>
+   
+   
+   <select id="getList" resultType="com.newlecture.web.entity.NoticeView">
+    <!--    int pageSize = 10;
+      int start = 1+(page-1)*pageSize;  
+      int end = page * pageSize;        -->   
+      
+<!--       문자열 $ 값 # -->
+      SELECT * FROM NOTICE_VIEW
+      WHERE ${param2} LIKE '%${param3}%'  
+	<if test="param1 != null">
+			AND NUM BETWEEN 1+{#{param1}-1}*10 AND #{param1} * 10
+	</if>
+   </select>
+
+   <insert id="insert" parameterType="com.newlecture.web.entity.Notice">
+   	<selectKey order="BEFORE" keyProperty="id" resultType="Integer">
+   		SELECT NVL(ID,0)+1 ID FROM(SELECT * FROM NOTICE ORDER BY REGDATE DESC) WHERE ROWNUM=1
+   	</selectKey>
+   	
+   	insert into notice(id,title,content,writer_id)
+   	values(#{id},#{title},#{content},#{writerId})
+   </insert>
+   
+   <update id="update" parameterType="com.newlecture.web.entity.Notice">
+   	update notice set title=#{title}, content=#{content}, writer_id=#{writerId}
+   	, hit=#{hit}, regDate=#{regDate} where id =#{id}
+   </update>
+   <delete id="delete">
+   	delete Notice where id = #{id}
+   </delete>
+</mapper>
